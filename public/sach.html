@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #218838;
+        }
+
+        .message {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Library Management</h1>
+
+    <!-- Đăng ký -->
+    <form id="registerForm">
+        <h2>Đăng Ký</h2>
+        <input type="text" id="registerUsername" placeholder="Tên người dùng" required>
+        <input type="password" id="registerPassword" placeholder="Mật khẩu" required>
+        <input type="text" id="registerRole" placeholder="Vai trò (client/admin)" required>
+        <input type="email" id="registerEmail" placeholder="Email" required>
+        <button type="submit">Đăng Ký</button>
+        <div class="message" id="registerMessage"></div>
+    </form>
+
+    <!-- Đăng nhập -->
+    <form id="loginForm">
+        <h2>Đăng Nhập</h2>
+        <input type="text" id="loginUsername" placeholder="Tên người dùng" required>
+        <input type="password" id="loginPassword" placeholder="Mật khẩu" required>
+        <button type="submit">Đăng Nhập</button>
+        <div class="message" id="loginMessage"></div>
+    </form>
+
+    <!-- Thêm sách -->
+    <form id="addBookForm">
+        <h2>Thêm Sách</h2>
+        <input type="text" id="bookTitle" placeholder="Tiêu đề" required>
+        <input type="text" id="bookAuthor" placeholder="Tác giả" required>
+        <input type="text" id="bookDescription" placeholder="Mô tả" required>
+        <input type="text" id="bookCategory" placeholder="Mã loại sách" required>
+        <input type="text" id="bookCategoryName" placeholder="Tên loại sách" required>
+        <input type="number" id="bookAvailable" placeholder="Số lượng có sẵn" required>
+        <button type="submit">Thêm Sách</button>
+        <div class="message" id="addBookMessage"></div>
+    </form>
+
+    <script>
+        // Đăng ký
+        document.getElementById('registerForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+            const role = document.getElementById('registerRole').value;
+            const email = document.getElementById('registerEmail').value;
+
+            const response = await fetch('/api/users/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password, role, email })
+            });
+
+            const result = await response.json();
+            document.getElementById('registerMessage').textContent = result.message;
+        });
+
+        // Đăng nhập
+        document.getElementById('loginForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const response = await fetch('/api/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const result = await response.json();
+            document.getElementById('loginMessage').textContent = result.message;
+
+            // Lưu token vào localStorage (nếu đăng nhập thành công)
+            if (result.statusCode === 200) {
+                localStorage.setItem('token', result.token);
+            }
+        });
+
+        // Thêm sách
+        document.getElementById('addBookForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const token = localStorage.getItem('token'); // Lấy token từ localStorage
+            const title = document.getElementById('bookTitle').value;
+            const author = document.getElementById('bookAuthor').value;
+            const description = document.getElementById('bookDescription').value;
+            const maloaisach = document.getElementById('bookCategory').value;
+            const tenloaisach = document.getElementById('bookCategoryName').value;
+            const available = document.getElementById('bookAvailable').value;
+
+            const response = await fetch('/api/books/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Thêm token vào header
+                },
+                body: JSON.stringify({ title, author, description, maloaisach, tenloaisach, available })
+            });
+
+            const result = await response.json();
+            document.getElementById('addBookMessage').textContent = result.message;
+        });
+    </script>
+
+</body>
+
+</html>
