@@ -1,3 +1,4 @@
+// app.js
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -43,4 +44,4 @@ app.use("/api/borrow-requests", borrowRouter);
 
 app.use(errorMiddleware);
 
-module.exports = app;
+module.exports = app; // Xuất ứng dụng Express
