@@ -33,7 +33,7 @@ app.use(
 
 dbConnection();
 
-app.get("test/", (req, res) => {
+app.get("/", (req, res) => {
     res.send("Welcome to the Library API");
 });
 
