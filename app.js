@@ -37,6 +37,12 @@ app.get("/", (req, res) => {
     res.send("Welcome to the Library API");
 });
 
+app.get("/api/test", (req, res) => {
+    console.log("Test API is called");
+    res.send("Test API is working");
+});
+
+
 // Use routers
 app.use("/api/users", usersRouter);
 app.use("/api/books", booksRouter);
