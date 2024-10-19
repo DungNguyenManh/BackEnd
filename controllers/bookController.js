@@ -1,13 +1,17 @@
 const Book = require('../models/bookSchema');
 
 const getAllBooks = async (req, res) => {
+    console.log("getAllBooks called");  // Thêm log tại đây
     try {
-        const books = await Book.find(); // Không dùng populate
+        const books = await Book.find().populate('tentheloai');
+        console.log("Books fetched", books.length);  // Thêm log sau khi truy vấn
         res.json(books);
     } catch (err) {
+        console.error("Error fetching books:", err);
         res.status(500).json({ message: err.message });
     }
 };
+
 
 const searchBooks = async (req, res) => {
     const query = req.query.q;
