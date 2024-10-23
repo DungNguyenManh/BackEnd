@@ -17,7 +17,11 @@ function authenticateToken(req, res, next) {
 function authorizeRole(role) {
     return (req, res, next) => {
         if (req.user.role !== role) {
-            return res.status(403).json({ message: "Access denied" });
+            return res.status(403).json({ 
+                status: 403,
+                message: "Access denied", 
+                data: [] 
+            });
         }
         next();
     };

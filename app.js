@@ -1,4 +1,3 @@
-// app.js
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -24,12 +23,6 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(
-    fileUpload({
-        useTempFiles: true,
-        tempFileDir: "/tmp/",
-    })
-);
 
 dbConnection();
 
@@ -37,17 +30,11 @@ app.get("/", (req, res) => {
     res.send("Welcome to the Library API");
 });
 
-app.get("/api/test", (req, res) => {
-    console.log("Test API is called");
-    res.send("Test API is working");
-});
 
-
-// Use routers
 app.use("/api/users", usersRouter);
 app.use("/api/books", booksRouter);
 app.use("/api/borrow-requests", borrowRouter);
 
 app.use(errorMiddleware);
 
-module.exports = app; // Xuất ứng dụng Express
+module.exports = app; 

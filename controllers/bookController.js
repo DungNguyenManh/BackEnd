@@ -1,14 +1,25 @@
 const Book = require('../models/bookSchema');
 
 const getAllBooks = async (req, res) => {
-    console.log("getAllBooks called");  // Thêm log tại đây
     try {
         const books = await Book.find().populate('tentheloai');
-        console.log("Books fetched", books.length);  // Thêm log sau khi truy vấn
-        res.json(books);
+        const bookList = books.map(book => ({
+            title: book.title,
+            author: book.author,
+            description: book.description,
+            tentheloai: book.tentheloai,
+            soluongsach: book.soluongsach,
+            imageUrl: book.image ? `${req.protocol}://${req.get('host')}/${book.image}` : null
+        }));
+
+
+        res.status(200).json({
+            status: 200,
+            message: 'Book display successful',
+            data: bookList
+        });
     } catch (err) {
-        console.error("Error fetching books:", err);
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ status: 'error', message: err.message });
     }
 };
 
@@ -22,67 +33,163 @@ const searchBooks = async (req, res) => {
                 { author: { $regex: query, $options: 'i' } }
             ]
         }).populate('tentheloai');
-        res.json(books);
+
+        const bookList = books.map(book => ({
+            title: book.title,
+            author: book.author,
+            description: book.description,
+            tentheloai: book.tentheloai,
+            soluongsach: book.soluongsach,
+            imageUrl: book.image ? `${req.protocol}://${req.get('host')}/${book.image}` : null
+        }));
+
+        
+        res.status(200).json({
+            status: 200,
+            message: 'Books fetched successfully',
+            data: bookList
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching books', error });
+        res.status(500).json({
+            status: 'error',
+            message: 'Error fetching books',
+            error: error.message
+        });
     }
 };
+
 
 const addBook = async (req, res) => {
     const book = new Book({
         title: req.body.title,
         author: req.body.author,
         description: req.body.description,
-        tentheloai: req.body.tentheloai,
-        soluongsach: req.body.soluongsach
+        tentheloai: req.body.tentheloai, 
+        soluongsach: req.body.soluongsach,
+        image: req.file ? req.file.path : null,
+        content: req.body.content
     });
     try {
         const newBook = await book.save();
-        res.status(201).json(newBook);
+
+
+        res.status(201).json({
+            status: 200,
+            message: 'Book added successfully',
+            data: {
+                id: newBook._id,
+                title: newBook.title,
+                author: newBook.author,
+                description: newBook.description,
+                tentheloai: newBook.tentheloai,
+                soluongsach: newBook.soluongsach,
+                imageUrl: newBook.image ? `${req.protocol}://${req.get('host')}/${newBook.image}` : null,
+                content: newBook.content
+            }
+        });
     } catch (err) {
-        res.status(400).json({ message: err.message });
+        res.status(400).json({
+            status: 'error',
+            message: 'Error adding book',
+            error: err.message
+        });
     }
 };
+
 
 const updateBook = async (req, res) => {
     try {
-        const book = await Book.findById(req.params.id);
-        if (!book) return res.status(404).json({ message: 'Book not found' });
+        const { title } = req.params; 
+        const newTitle = req.body.title; 
 
-        // Cập nhật thông tin sách
-        if (req.body.title != null) {
-            book.title = req.body.title;
+        if (!title || !newTitle) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Title and new title are required'
+            });
         }
-        if (req.body.author != null) {
-            book.author = req.body.author;
+
+
+        const book = await Book.findOne({ title });
+        if (!book) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Book not found'
+            });
         }
-        if (req.body.description != null) {
-            book.description = req.body.description;
-        }
-        if (req.body.tentheloai != null) {
-            book.tentheloai = req.body.tentheloai;
-        }
-        if (req.body.soluongsach != null) {
-            book.soluongsach = req.body.soluongsach;
-        }
+
+
+        book.title = newTitle;
+
 
         const updatedBook = await book.save();
-        res.json(updatedBook);
+        res.status(200).json({
+            status: 200,
+            message: 'Book updated successfully',
+            data: updatedBook
+        });
     } catch (err) {
-        res.status(400).json({ message: err.message });
+        res.status(500).json({
+            status: 'error',
+            message: 'Error updating book',
+            error: err.message
+        });
     }
 };
+
 
 const deleteBook = async (req, res) => {
     try {
-        const book = await Book.findByIdAndDelete(req.params.id);
-        if (!book) return res.status(404).json({ message: 'Book not found' });
+        const { title } = req.query;
 
-        res.json({ message: 'Deleted Book' });
+
+        if (!title) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Title is required to delete books'
+            });
+        }
+
+
+        const booksToDelete = await Book.find({ title: title });
+
+
+        if (booksToDelete.length === 0) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'No books found with that title'
+            });
+        }
+
+
+        const result = await Book.deleteMany({ title: title });
+
+        return res.status(200).json({
+            status: 200,
+            message: `${result.deletedCount} book(s) deleted successfully`,
+            data: booksToDelete.map(book => ({
+                id: book._id,
+                title: book.title,
+                author: book.author,
+                description: book.description,
+                tentheloai: book.tentheloai,
+                soluongsach: book.soluongsach,
+                imageUrl: book.image ? `${req.protocol}://${req.get('host')}/${book.image}` : null,
+                content: book.content
+            }))
+        });
+
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({
+            status: 'error',
+            message: 'Error deleting book',
+            error: err.message
+        });
     }
 };
+
+
+
 
 module.exports = {
     getAllBooks,
