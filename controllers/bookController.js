@@ -60,18 +60,23 @@ const searchBooks = async (req, res) => {
 
 
 const addBook = async (req, res) => {
-    const book = new Book({
-        title: req.body.title,
-        author: req.body.author,
-        description: req.body.description,
-        category_name: req.body.category_name, 
-        number_of_books: req.body.number_of_books,
-        image: req.file ? req.file.path : null,
-        content: req.body.content
-    });
     try {
-        const newBook = await book.save();
+        const book = new Book({
+            title: req.body.title,
+            author: req.body.author,
+            description: req.body.description,
+            category_name: req.body.category_name, 
+            number_of_books: req.body.number_of_books,
+            image: req.file ? req.file.path : null,
+            content: req.body.content
+        });
 
+        // Kiểm tra xem có trường nào còn thiếu hay không
+        if (!book.title || !book.author || !book.category_name) {
+            return res.status(400).json({ status: 'error', message: 'Vui lòng cung cấp tất cả các trường bắt buộc.' });
+        }
+
+        const newBook = await book.save();
 
         res.status(201).json({
             status: 200,
@@ -88,13 +93,15 @@ const addBook = async (req, res) => {
             }
         });
     } catch (err) {
-        res.status(400).json({
+        console.error(err); // Log lỗi để kiểm tra
+        res.status(500).json({
             status: 'error',
             message: 'Error adding book',
             error: err.message
         });
     }
 };
+
 
 
 const updateBook = async (req, res) => {
