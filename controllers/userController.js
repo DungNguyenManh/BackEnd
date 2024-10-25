@@ -67,20 +67,23 @@ const registerUser = async (req, res) => {
 };
 
 // Đăng nhập người dùng
+// Đăng nhập người dùng bằng email
 const loginUser = async (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
     try {
-        const user = await User.findOne({ username });
+        // Tìm người dùng dựa trên email thay vì username
+        const user = await User.findOne({ email });
 
         if (!user) {
             return res.status(400).json({
                 statusCode: 400,
-                message: "Username does not exist",
-                data: { username: username }
+                message: "Email does not exist",
+                data: { email: email }
             });
         }
 
+        // Kiểm tra mật khẩu
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             return res.status(400).json({
@@ -90,8 +93,9 @@ const loginUser = async (req, res) => {
             });
         }
 
+        // Tạo token JWT
         const accessToken = jwt.sign(
-            { username: user.username, role: user.role },
+            { username: user.username, role: user.role }, // vẫn có thể bao gồm username trong token nếu cần
             process.env.ACCESS_TOKEN_SECRET,
             { expiresIn: '1h' }
         );
@@ -99,6 +103,7 @@ const loginUser = async (req, res) => {
         res.status(200).json({
             statusCode: 200,
             message: "Login successful",
+            username: user.username,
             token: accessToken,
             role: user.role
         });
@@ -106,5 +111,6 @@ const loginUser = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
 
 module.exports = { getAllUsers, registerUser, loginUser };
