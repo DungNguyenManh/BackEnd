@@ -3,12 +3,14 @@ const bookRouter = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { 
-    getAllBooks, 
-    searchBooks, 
-    addBook, 
-    updateBook, 
-    deleteBook 
+const cloudinary = require('../cloudinaryConfig'); // Đảm bảo đường dẫn đúng
+
+const {
+    getAllBooks,
+    searchBooks,
+    addBook,
+    updateBook,
+    deleteBook
 } = require('../controllers/bookController');
 const { authenticateToken, authorizeRole } = require('../middlewares/authMiddleware');
 
@@ -54,17 +56,44 @@ bookRouter.get('/categories', async (req, res) => {
 });
 
 // Route thêm sách
-bookRouter.post('/add', authenticateToken, authorizeRole('admin'), (req, res, next) => {
-    upload.single('bookImage')(req, res, (err) => {
+bookRouter.post('/add', authenticateToken, authorizeRole('admin'), (req, res) => {
+    upload.single('bookImage')(req, res, async (err) => {
         if (err) {
             return res.status(400).json({
                 success: false,
                 message: 'Lỗi khi tải lên tệp: ' + err.message
             });
         }
-        next();
+
+        try {
+            // Tải hình ảnh lên Cloudinary
+            const result = await cloudinary.uploader.upload(req.file.path);
+            
+            // Thông tin sách để lưu vào cơ sở dữ liệu
+            const bookData = {
+                title: req.body.title,
+                author: req.body.author,
+                imageUrl: result.secure_url, // Lưu URL hình ảnh từ Cloudinary
+                // Thêm các thuộc tính khác của sách nếu cần
+            };
+
+            // Gọi hàm addBook để lưu thông tin sách vào cơ sở dữ liệu
+            await addBook(bookData);
+
+            res.status(201).json({
+                success: true,
+                message: 'Sách đã được thêm thành công',
+                data: bookData
+            });
+        } catch (uploadError) {
+            return res.status(500).json({
+                success: false,
+                message: 'Lỗi khi tải lên Cloudinary: ' + uploadError.message
+            });
+        }
     });
-}, addBook);
+});
+
 
 // Route cập nhật sách
 bookRouter.patch('/update/:title', authenticateToken, authorizeRole('admin'), (req, res, next) => {
