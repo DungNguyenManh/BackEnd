@@ -9,7 +9,7 @@ const getAllBooks = async (req, res) => {
             description: book.description,
             category_name: book.category_name,
             number_of_books: book.number_of_books,
-            imageUrl: book.image ? `${req.protocol}://${req.get('host')}/${book.image}` : null
+            imageUrl: book.image,
         }));
 
         res.status(200).json({
@@ -21,6 +21,7 @@ const getAllBooks = async (req, res) => {
         res.status(500).json({ status: 'error', message: err.message });
     }
 };
+
 
 const searchBooks = async (req, res) => {
     const query = req.query.q;
@@ -57,20 +58,21 @@ const searchBooks = async (req, res) => {
 
 const addBook = async (req, res) => {
     try {
-        const book = new Book({
-            title: req.body.title,
-            author: req.body.author,
-            description: req.body.description,
-            category_name: req.body.category_name, 
-            number_of_books: req.body.number_of_books,
-            image: req.file ? req.file.path : null,
-            content: req.body.content
-        });
+        const { title, author, description, category_name, number_of_books, content } = req.body;
 
-        // Kiểm tra xem có trường nào còn thiếu hay không
-        if (!book.title || !book.author || !book.category_name) {
+        if (!title || !author || !category_name) {
             return res.status(400).json({ status: 'error', message: 'Vui lòng cung cấp tất cả các trường bắt buộc.' });
         }
+
+        const book = new Book({
+            title,
+            author,
+            description,
+            category_name,
+            number_of_books,
+            image: req.file ? `/uploads/${req.file.filename}` : "https://picsum.photos/200/300?random=" + Math.floor(Math.random() * 1000),
+            content
+        });
 
         const newBook = await book.save();
 
@@ -84,12 +86,12 @@ const addBook = async (req, res) => {
                 description: newBook.description,
                 category_name: newBook.category_name,
                 number_of_books: newBook.number_of_books,
-                imageUrl: newBook.image ? `${req.protocol}://${req.get('host')}/${newBook.image}` : null,
+                imageUrl: newBook.image,
                 content: newBook.content
             }
         });
     } catch (err) {
-        console.error(err); // Log lỗi để kiểm tra
+        console.error("Lỗi khi thêm sách:", err); 
         res.status(500).json({
             status: 'error',
             message: 'Error adding book',
@@ -98,42 +100,46 @@ const addBook = async (req, res) => {
     }
 };
 
+
 const updateBook = async (req, res) => {
     try {
-        const { title } = req.params; 
-        const newTitle = req.body.title; 
+        const { id } = req.params; 
+        const updatedData = req.body;
 
-        if (!title || !newTitle) {
-            return res.status(400).json({
-                status: 'error',
-                message: 'Title and new title are required'
-            });
+        if (!id) {
+            return res.status(400).json({ status: 'error', message: 'Book ID is required for updating' });
         }
 
-        const book = await Book.findOne({ title });
-        if (!book) {
-            return res.status(404).json({
-                status: 'error',
-                message: 'Book not found'
-            });
+        if (req.file) {
+            updatedData.image = `/uploads/${req.file.filename}`; 
         }
 
-        book.title = newTitle;
+        const updatedBook = await Book.findByIdAndUpdate(id, updatedData, { new: true });
 
-        const updatedBook = await book.save();
+        if (!updatedBook) {
+            return res.status(404).json({ status: 'error', message: 'Book not found' });
+        }
+
         res.status(200).json({
             status: 200,
             message: 'Book updated successfully',
-            data: updatedBook
+            data: {
+                id: updatedBook._id,
+                title: updatedBook.title,
+                author: updatedBook.author,
+                description: updatedBook.description,
+                category_name: updatedBook.category_name,
+                number_of_books: updatedBook.number_of_books,
+                imageUrl: updatedBook.image,
+                content: updatedBook.content
+            }
         });
     } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            message: 'Error updating book',
-            error: err.message
-        });
+        console.error(err);
+        res.status(500).json({ status: 'error', message: 'Error updating book', error: err.message });
     }
 };
+
 
 const deleteBook = async (req, res) => {
     try {

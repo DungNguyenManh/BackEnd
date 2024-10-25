@@ -1,4 +1,3 @@
-// controllers/borrowController.js
 const BorrowRequest = require('../models/borrowSchema');
 
 const createBorrowRequest = async (req, res) => {
@@ -41,8 +40,6 @@ const getAllBorrowRequests = async (req, res) => {
         });
     }
 };
-
-
 
 const approveBorrowRequest = async (req, res) => {
     try {
@@ -87,7 +84,6 @@ const approveBorrowRequest = async (req, res) => {
         });
     }
 };
-
 
 module.exports = {
     createBorrowRequest,

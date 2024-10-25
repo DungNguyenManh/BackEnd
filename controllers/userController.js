@@ -2,10 +2,9 @@ const User = require('../models/userSchema');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Lấy tất cả người dùng
 const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find({}, { password: 0 }); // Không trả về password
+        const users = await User.find({}, { password: 0 }); 
         res.status(200).json({
             statusCode: 200,
             message: "Users retrieved successfully",
@@ -16,7 +15,6 @@ const getAllUsers = async (req, res) => {
     }
 };
 
-// Đăng ký người dùng
 const registerUser = async (req, res) => {
     const { username, password, email } = req.body;
 
@@ -66,13 +64,10 @@ const registerUser = async (req, res) => {
     }
 };
 
-// Đăng nhập người dùng
-// Đăng nhập người dùng bằng email
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // Tìm người dùng dựa trên email thay vì username
         const user = await User.findOne({ email });
 
         if (!user) {
@@ -83,7 +78,6 @@ const loginUser = async (req, res) => {
             });
         }
 
-        // Kiểm tra mật khẩu
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             return res.status(400).json({
@@ -93,9 +87,8 @@ const loginUser = async (req, res) => {
             });
         }
 
-        // Tạo token JWT
         const accessToken = jwt.sign(
-            { username: user.username, role: user.role }, // vẫn có thể bao gồm username trong token nếu cần
+            { username: user.username, role: user.role }, 
             process.env.ACCESS_TOKEN_SECRET,
             { expiresIn: '1h' }
         );
@@ -111,6 +104,5 @@ const loginUser = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
 
 module.exports = { getAllUsers, registerUser, loginUser };
