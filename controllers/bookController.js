@@ -2,13 +2,13 @@ const Book = require('../models/bookSchema');
 
 const getAllBooks = async (req, res) => {
     try {
-        const books = await Book.find().populate('tentheloai');
+        const books = await Book.find().populate('category_name');
         const bookList = books.map(book => ({
             title: book.title,
             author: book.author,
             description: book.description,
-            tentheloai: book.tentheloai,
-            soluongsach: book.soluongsach,
+            category_name: book.category_name,
+            number_of_books: book.number_of_books,
             imageUrl: book.image ? `${req.protocol}://${req.get('host')}/${book.image}` : null
         }));
 
@@ -32,14 +32,14 @@ const searchBooks = async (req, res) => {
                 { title: { $regex: query, $options: 'i' } },
                 { author: { $regex: query, $options: 'i' } }
             ]
-        }).populate('tentheloai');
+        }).populate('category_name');
 
         const bookList = books.map(book => ({
             title: book.title,
             author: book.author,
             description: book.description,
-            tentheloai: book.tentheloai,
-            soluongsach: book.soluongsach,
+            category_name: book.category_name,
+            number_of_books: book.number_of_books,
             imageUrl: book.image ? `${req.protocol}://${req.get('host')}/${book.image}` : null
         }));
 
@@ -64,8 +64,8 @@ const addBook = async (req, res) => {
         title: req.body.title,
         author: req.body.author,
         description: req.body.description,
-        tentheloai: req.body.tentheloai, 
-        soluongsach: req.body.soluongsach,
+        category_name: req.body.category_name, 
+        number_of_books: req.body.number_of_books,
         image: req.file ? req.file.path : null,
         content: req.body.content
     });
@@ -81,8 +81,8 @@ const addBook = async (req, res) => {
                 title: newBook.title,
                 author: newBook.author,
                 description: newBook.description,
-                tentheloai: newBook.tentheloai,
-                soluongsach: newBook.soluongsach,
+                category_name: newBook.category_name,
+                number_of_books: newBook.number_of_books,
                 imageUrl: newBook.image ? `${req.protocol}://${req.get('host')}/${newBook.image}` : null,
                 content: newBook.content
             }
@@ -172,8 +172,8 @@ const deleteBook = async (req, res) => {
                 title: book.title,
                 author: book.author,
                 description: book.description,
-                tentheloai: book.tentheloai,
-                soluongsach: book.soluongsach,
+                category_name: book.category_name,
+                number_of_books: book.number_of_books,
                 imageUrl: book.image ? `${req.protocol}://${req.get('host')}/${book.image}` : null,
                 content: book.content
             }))
