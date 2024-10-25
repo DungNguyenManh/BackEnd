@@ -1,6 +1,5 @@
 const express = require('express');
 const bookRouter = express.Router();
-const multer = require('multer');
 
 const {
     getAllBooks,
@@ -11,23 +10,8 @@ const {
 } = require('../controllers/bookController');
 const { authenticateToken, authorizeRole } = require('../middlewares/authMiddleware');
 
-// Bạn có thể xóa phần cấu hình multer vì không cần upload nữa
-const upload = multer({
-    limits: { fileSize: 2 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {
-        // Không cần kiểm tra loại tệp nếu không upload
-        cb(null, true);
-    }
-});
-
 bookRouter.get('/', getAllBooks);
 bookRouter.get('/search', searchBooks);
-bookRouter.get('/categories', (req, res) => {
-    const categories = ['Hành động', 'Tình cảm', 'Hài', 'Kinh dị', 'Bí ẩn', 'Giả tưởng', 'Truyền cảm hứng', 'Tiểu sử', 'Truyện ngắn', 'Dạy nấu ăn', 'Bài luận', 'Lịch sử'];
-    res.json(categories);
-});
-
-// Bạn không cần upload nữa, nên có thể xóa middleware upload
 bookRouter.post('/add', authenticateToken, authorizeRole('admin'), addBook);
 bookRouter.patch('/update/:id', authenticateToken, authorizeRole('admin'), updateBook);
 bookRouter.delete('/delete', authenticateToken, authorizeRole('admin'), deleteBook);

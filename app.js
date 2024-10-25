@@ -9,6 +9,7 @@ const path = require('path');
 const usersRouter = require('./routes/usersRouter');
 const booksRouter = require('./routes/booksRouter');
 const borrowRouter = require('./routes/borrowRouter');
+const categoriesRouter = require('./routes/categoriesRouter');
 
 dotenv.config();
 const app = express();
@@ -35,6 +36,7 @@ app.get("/", (req, res) => {
 app.use("/api/users", usersRouter);
 app.use("/api/books", booksRouter);
 app.use("/api/borrow-requests", borrowRouter);
+app.use("/api/categories", categoriesRouter);
 
 app.use(errorMiddleware);
 
