@@ -12,7 +12,6 @@ const getAllBooks = async (req, res) => {
             imageUrl: book.image ? `${req.protocol}://${req.get('host')}/${book.image}` : null
         }));
 
-
         res.status(200).json({
             status: 200,
             message: 'Book display successful',
@@ -22,7 +21,6 @@ const getAllBooks = async (req, res) => {
         res.status(500).json({ status: 'error', message: err.message });
     }
 };
-
 
 const searchBooks = async (req, res) => {
     const query = req.query.q;
@@ -43,7 +41,6 @@ const searchBooks = async (req, res) => {
             imageUrl: book.image ? `${req.protocol}://${req.get('host')}/${book.image}` : null
         }));
 
-        
         res.status(200).json({
             status: 200,
             message: 'Books fetched successfully',
@@ -57,7 +54,6 @@ const searchBooks = async (req, res) => {
         });
     }
 };
-
 
 const addBook = async (req, res) => {
     try {
@@ -102,8 +98,6 @@ const addBook = async (req, res) => {
     }
 };
 
-
-
 const updateBook = async (req, res) => {
     try {
         const { title } = req.params; 
@@ -116,7 +110,6 @@ const updateBook = async (req, res) => {
             });
         }
 
-
         const book = await Book.findOne({ title });
         if (!book) {
             return res.status(404).json({
@@ -125,9 +118,7 @@ const updateBook = async (req, res) => {
             });
         }
 
-
         book.title = newTitle;
-
 
         const updatedBook = await book.save();
         res.status(200).json({
@@ -144,11 +135,9 @@ const updateBook = async (req, res) => {
     }
 };
 
-
 const deleteBook = async (req, res) => {
     try {
         const { title } = req.query;
-
 
         if (!title) {
             return res.status(400).json({
@@ -157,9 +146,7 @@ const deleteBook = async (req, res) => {
             });
         }
 
-
         const booksToDelete = await Book.find({ title: title });
-
 
         if (booksToDelete.length === 0) {
             return res.status(404).json({
@@ -167,7 +154,6 @@ const deleteBook = async (req, res) => {
                 message: 'No books found with that title'
             });
         }
-
 
         const result = await Book.deleteMany({ title: title });
 
@@ -194,9 +180,6 @@ const deleteBook = async (req, res) => {
         });
     }
 };
-
-
-
 
 module.exports = {
     getAllBooks,
