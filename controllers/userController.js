@@ -2,6 +2,21 @@ const User = require('../models/userSchema');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+// Lấy tất cả người dùng
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find({}, { password: 0 }); // Không trả về password
+        res.status(200).json({
+            statusCode: 200,
+            message: "Users retrieved successfully",
+            data: users
+        });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Đăng ký người dùng
 const registerUser = async (req, res) => {
     const { username, password, email } = req.body;
 
@@ -51,6 +66,7 @@ const registerUser = async (req, res) => {
     }
 };
 
+// Đăng nhập người dùng
 const loginUser = async (req, res) => {
     const { username, password } = req.body;
 
@@ -91,4 +107,4 @@ const loginUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser };
+module.exports = { getAllUsers, registerUser, loginUser };
