@@ -22,7 +22,6 @@ const getAllBooks = async (req, res) => {
     }
 };
 
-
 const searchBooks = async (req, res) => {
     const query = req.query.q;
     try {
@@ -39,7 +38,7 @@ const searchBooks = async (req, res) => {
             description: book.description,
             category_name: book.category_name,
             number_of_books: book.number_of_books,
-            imageUrl: book.image ? `${req.protocol}://${req.get('host')}/${book.image}` : null
+            imageUrl: book.image || `https://picsum.photos/200/300?random=${Math.floor(Math.random() * 1000)}`,
         }));
 
         res.status(200).json({
@@ -70,7 +69,7 @@ const addBook = async (req, res) => {
             description,
             category_name,
             number_of_books,
-            image: req.file ? `/uploads/${req.file.filename}` : "https://picsum.photos/200/300?random=" + Math.floor(Math.random() * 1000),
+            image: req.file ? `https://picsum.photos/200/300?random=${Math.floor(Math.random() * 1000)}` : `https://picsum.photos/200/300?random=${Math.floor(Math.random() * 1000)}`,
             content
         });
 
@@ -100,7 +99,6 @@ const addBook = async (req, res) => {
     }
 };
 
-
 const updateBook = async (req, res) => {
     try {
         const { id } = req.params; 
@@ -111,7 +109,7 @@ const updateBook = async (req, res) => {
         }
 
         if (req.file) {
-            updatedData.image = `/uploads/${req.file.filename}`; 
+            updatedData.image = `https://picsum.photos/200/300?random=${Math.floor(Math.random() * 1000)}`; 
         }
 
         const updatedBook = await Book.findByIdAndUpdate(id, updatedData, { new: true });
@@ -139,7 +137,6 @@ const updateBook = async (req, res) => {
         res.status(500).json({ status: 'error', message: 'Error updating book', error: err.message });
     }
 };
-
 
 const deleteBook = async (req, res) => {
     try {
@@ -173,7 +170,7 @@ const deleteBook = async (req, res) => {
                 description: book.description,
                 category_name: book.category_name,
                 number_of_books: book.number_of_books,
-                imageUrl: book.image ? `${req.protocol}://${req.get('host')}/${book.image}` : null,
+                imageUrl: book.image || `https://picsum.photos/200/300?random=${Math.floor(Math.random() * 1000)}`,
                 content: book.content
             }))
         });

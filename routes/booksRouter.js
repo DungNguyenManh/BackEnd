@@ -1,7 +1,6 @@
 const express = require('express');
 const bookRouter = express.Router();
-const multer = require('multer');
-const path = require('path');
+const multer = require('multer'); // Nếu không cần, bạn có thể bỏ import này
 const fs = require('fs');
 
 const {
@@ -13,33 +12,18 @@ const {
 } = require('../controllers/bookController');
 const { authenticateToken, authorizeRole } = require('../middlewares/authMiddleware');
 
-const uploadDir = 'uploads';
+// Nếu không cần thiết lập uploadDir, bạn có thể bỏ qua phần này
+const uploadDir = 'uploads'; // Có thể xóa nếu không sử dụng
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
 }
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
-});
-
+// Bạn có thể xóa phần cấu hình multer vì không cần upload nữa
 const upload = multer({
-    storage: storage,
     limits: { fileSize: 2 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
-        const fileTypes = /jpeg|jpg|png|gif/;
-        const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = fileTypes.test(file.mimetype);
-
-        if (extname && mimetype) {
-            cb(null, true);
-        } else {
-            cb(new Error('Chỉ cho phép tải lên các tệp hình ảnh (jpeg, jpg, png, gif)'));
-        }
+        // Không cần kiểm tra loại tệp nếu không upload
+        cb(null, true);
     }
 });
 
@@ -50,10 +34,9 @@ bookRouter.get('/categories', (req, res) => {
     res.json(categories);
 });
 
-bookRouter.post('/add', authenticateToken, authorizeRole('admin'), upload.single('bookImage'), addBook);
-
+// Bạn không cần upload nữa, nên có thể xóa middleware upload
+bookRouter.post('/add', authenticateToken, authorizeRole('admin'), addBook);
 bookRouter.patch('/update/:id', authenticateToken, authorizeRole('admin'), updateBook);
-
 bookRouter.delete('/delete', authenticateToken, authorizeRole('admin'), deleteBook);
 
 module.exports = bookRouter;
