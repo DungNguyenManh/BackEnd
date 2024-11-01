@@ -5,7 +5,7 @@ const borrowRequestSchema = new mongoose.Schema({
     title: { type: String, required: true },    
     borrowDate: { type: Date, required: true },
     returnDate: { type: Date, required: true },
-    status: { type: String, enum: ['chua giai quyet', 'duyet', 'bi loai bo'], default: 'chua giai quyet' }
+    status: { type: String, enum: ['pending', 'approved', 'remove'], default: 'pending' }
 });
 
 module.exports = mongoose.model('BorrowRequest', borrowRequestSchema);
