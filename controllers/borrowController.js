@@ -85,8 +85,35 @@ const approveBorrowRequest = async (req, res) => {
     }
 };
 
+const deleteBorrowRequest = async (req, res) => {
+    try {
+        const request = await BorrowRequest.findByIdAndDelete(req.params.id);
+        if (!request) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Book loan request could not be found',
+                data: []
+            });
+        }
+
+        return res.json({
+            status: 200,
+            message: 'The request was successfully deleted',
+            data: []
+        });
+    } catch (err) {
+        return res.status(500).json({
+            status: 'error',
+            message: err.message,
+            data: []
+        });
+    }
+};
+
+
 module.exports = {
     createBorrowRequest,
     getAllBorrowRequests,
-    approveBorrowRequest
+    approveBorrowRequest,
+    deleteBorrowRequest
 };
