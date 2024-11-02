@@ -98,7 +98,7 @@ const deleteBorrowRequest = async (req, res) => {
 
         return res.json({
             status: 200,
-            message: 'The request was successfully deleted',
+            message: 'Deleted successfully',
             data: []
         });
     } catch (err) {
