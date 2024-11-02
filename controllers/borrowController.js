@@ -53,22 +53,14 @@ const approveBorrowRequest = async (req, res) => {
         }
 
         if (req.body.status) {
-            if (req.body.status === 'rejected') {
-                await BorrowRequest.findByIdAndDelete(request._id);  
-                return res.json({
-                    status: 200,
-                    message: 'The request was denied and has been deleted',
-                    data: []
-                });
-            } else {
-                request.status = req.body.status;
-                const updatedRequest = await request.save();
-                return res.json({
-                    status: 200,
-                    message: 'Book loan request updated successfully',
-                    data: updatedRequest
-                });
-            }
+            // Chỉ xử lý cập nhật trạng thái
+            request.status = req.body.status;
+            const updatedRequest = await request.save();
+            return res.json({
+                status: 200,
+                message: 'Book loan request updated successfully',
+                data: updatedRequest
+            });
         }
 
         return res.status(400).json({
@@ -84,6 +76,7 @@ const approveBorrowRequest = async (req, res) => {
         });
     }
 };
+
 
 const deleteBorrowRequest = async (req, res) => {
     try {
