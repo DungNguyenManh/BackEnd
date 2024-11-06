@@ -43,39 +43,35 @@ const getAllBorrowRequests = async (req, res) => {
 
 const approveBorrowRequest = async (req, res) => {
     try {
-        const request = await BorrowRequest.findOne({ username: req.body.username, title: req.body.title });
+        const requestId = req.params.id; // Lấy id từ URL
+        const status = req.body.status || "approved"; // Mặc định status là "approved" nếu không có trong body
+
+        const request = await BorrowRequest.findById(requestId);
         if (!request) {
             return res.status(404).json({
                 status: 'error',
-                message: 'Book loan request could not be found',
-                data: []
+                message: 'Book loan request could not be found'
             });
         }
 
-        if (req.body.status) {
-            // Chỉ xử lý cập nhật trạng thái
-            request.status = req.body.status;
-            const updatedRequest = await request.save();
-            return res.json({
-                status: 200,
-                message: 'Book loan request updated successfully',
-                data: updatedRequest
-            });
-        }
-
-        return res.status(400).json({
-            status: 'error',
-            message: 'Invalid status',
-            data: []
+        request.status = status;
+        const updatedRequest = await request.save();
+        return res.json({
+            status: 200,
+            message: 'Book loan request updated successfully',
+            data: {
+                id: updatedRequest._id,
+                ...updatedRequest._doc
+            }
         });
     } catch (err) {
         return res.status(500).json({
             status: 'error',
-            message: err.message,
-            data: []
+            message: err.message
         });
     }
 };
+
 
 
 const deleteBorrowRequest = async (req, res) => {

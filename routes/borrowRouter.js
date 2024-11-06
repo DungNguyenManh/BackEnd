@@ -10,7 +10,7 @@ const { authenticateToken, authorizeRole } = require('../middlewares/authMiddlew
 
 borrowRequestRouter.post('/', authenticateToken, createBorrowRequest);
 borrowRequestRouter.get('/', authenticateToken, authorizeRole('admin'), getAllBorrowRequests);
-borrowRequestRouter.patch('/', authenticateToken, authorizeRole('admin'), approveBorrowRequest);
+borrowRequestRouter.patch('/:id', authenticateToken, authorizeRole('admin'), approveBorrowRequest);
 borrowRequestRouter.delete('/:id', authenticateToken, authorizeRole('admin'), deleteBorrowRequest); 
 
 module.exports = borrowRequestRouter;
