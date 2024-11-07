@@ -5,7 +5,8 @@ const createBorrowRequest = async (req, res) => {
         username: req.body.username, 
         title: req.body.title,        
         borrowDate: req.body.borrowDate,
-        returnDate: req.body.returnDate
+        returnDate: req.body.returnDate,
+        status: 'pending'
     });
     try {
         const newRequest = await borrowRequest.save(); 
@@ -41,28 +42,27 @@ const getAllBorrowRequests = async (req, res) => {
     }
 };
 
+// Duyệt yêu cầu mượn sách (Cập nhật trạng thái thành "approved")
 const approveBorrowRequest = async (req, res) => {
     try {
-        const requestId = req.params.id; // Lấy id từ URL
-        const status = req.body.status || "approved"; // Mặc định status là "approved" nếu không có trong body
-
+        const requestId = req.params.id;
         const request = await BorrowRequest.findById(requestId);
+
         if (!request) {
             return res.status(404).json({
                 status: 'error',
-                message: 'Book loan request could not be found'
+                message: 'No request to borrow books found'
             });
         }
 
-        request.status = status;
+        // Cập nhật trạng thái thành "approved"
+        request.status = 'approved';
         const updatedRequest = await request.save();
+        
         return res.json({
             status: 200,
-            message: 'Book loan request updated successfully',
-            data: {
-                id: updatedRequest._id,
-                ...updatedRequest._doc
-            }
+            message: 'The book loan request has been approved successfully',
+            data: updatedRequest
         });
     } catch (err) {
         return res.status(500).json({
@@ -71,8 +71,6 @@ const approveBorrowRequest = async (req, res) => {
         });
     }
 };
-
-
 
 const deleteBorrowRequest = async (req, res) => {
     try {
