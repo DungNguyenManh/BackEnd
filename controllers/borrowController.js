@@ -42,7 +42,6 @@ const getAllBorrowRequests = async (req, res) => {
     }
 };
 
-// Duyệt yêu cầu mượn sách (Cập nhật trạng thái thành "approved")
 const approveBorrowRequest = async (req, res) => {
     try {
         const requestId = req.params.id;
@@ -55,7 +54,6 @@ const approveBorrowRequest = async (req, res) => {
             });
         }
 
-        // Cập nhật trạng thái thành "approved"
         request.status = 'approved';
         const updatedRequest = await request.save();
         

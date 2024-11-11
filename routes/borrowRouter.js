@@ -8,7 +8,6 @@ const {
 } = require('../controllers/borrowController');
 const { authenticateToken, authorizeRole } = require('../middlewares/authMiddleware');
 
-// Các endpoint
 borrowRequestRouter.post('/', authenticateToken, createBorrowRequest);
 borrowRequestRouter.get('/', authenticateToken, authorizeRole('admin'), getAllBorrowRequests);
 borrowRequestRouter.patch('/:id', authenticateToken, authorizeRole('admin'), approveBorrowRequest);
